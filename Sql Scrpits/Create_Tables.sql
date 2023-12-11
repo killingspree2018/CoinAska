@@ -11,6 +11,7 @@ CREATE TABLE `coinaska`.`pricebands` (
   `BandAlgorithm` VARCHAR(45) NULL,
   `AccountBalancePercentage` INT NULL,
   `CustomAccountBalance` FLOAT NULL;
+  `NoOfOrders` INT NULL;
   PRIMARY KEY (`ID`),
   UNIQUE INDEX `ID_UNIQUE` (`ID` ASC) VISIBLE
 );
@@ -23,8 +24,8 @@ CREATE TABLE `coinaska`.`botconfigurables` (
 );
 
 CREATE TABLE `coinaska`.`coinpricetracker` (
-  `Price` INT NOT NULL,
+  `Price` float NOT NULL,
   `CurrentTime` DATETIME NULL,
-  PRIMARY KEY (`Price`)
+  PRIMARY KEY (`CurrentTime`)
 );
 
