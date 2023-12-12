@@ -27,7 +27,7 @@ async def connect_to_websocket_server():
             response_obj = json.loads(response)
             if response_obj.get('T') == 'ticker':
                 print(f"Received ticker Data: {response}")
-                current_price = response_obj.get('close')
+                current_price = float(response_obj.get('close'))
                 bot_service = MarketMakingBotService(current_price)
                 bot_service.start_processing()
             # if response_obj.get('T') == 'depth':

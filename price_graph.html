@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Horizontal Bar Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-horizontal-bar"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script>
+        const data = [
+            { ordPrice: 9, ordQty: 10 },
+            { ordPrice: 12, ordQty: 15 },
+            { ordPrice: 15, ordQty: 8 },
+        ];
+
+        const labels = [];
+        const barData = [];
+
+        data.forEach(obj => {
+            labels.push(obj.ordPrice);
+            barData.push(obj.ordQty);
+        });
+
+        const config = {
+            type: 'horizontalBar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Order Quantity',
+                    data: barData,
+                    backgroundColor: 'blue',
+                    barThickness: 1,
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                    }],
+                },
+                tooltips: {
+                    enabled: false, // You can enable tooltips if needed
+                },
+                legend: {
+                    display: false, // You can show legend if needed
+                },
+            },
+        };
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+    </script>
+</body>
+</html>

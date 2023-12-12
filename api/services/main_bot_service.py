@@ -9,30 +9,27 @@ class MarketMakingBotService:
         
     def start_processing(self):
         # get buy band in which current price of the stock lies
-        buy_bands = self.get_price_band('BUY')
-        self.place_orders(buy_bands, 'BUY')
-        sell_bands = self.get_price_band('SELL')
-        self.place_orders(sell_bands, 'SELL')
-
-    def get_price_band(self, order_type):
-        base_price = self.database_obj.base_price
-        eligible_bands = []
-        buy_order = order_type == 'BUY'
-        price_band_list = self.database_obj.buy_price_bands if buy_order else self.database_obj.sell_price_bands
-        for band in price_band_list:
-            # start_percent = band.get('StartPercentage')
-            end_percent = band.get('EndPercentage')
-            custom_end_price = band.get('CustomEndPrice')
-            # start_value = (1 + start_percent / 100) * base_price
-            end_value = (1 + end_percent / 100) * base_price if not custom_end_price else custom_end_price
-            if (buy_order and self.current_price > end_value) or (not buy_order and self.current_price < end_value):
-                eligible_bands.append(band)
-        return eligible_bands
+        # self.place_orders(self.database_obj.buy_price_bands, 'BUY')
+        self.place_orders(self.database_obj.sell_price_bands, 'SELL')
 
     def place_orders(self, bands, order_type):
         buy_order = order_type == 'BUY'
         base_price = self.database_obj.base_price
         combined_order_list = []
+        last_band = bands[-1]
+        if not buy_order:
+            last_band_end_percent = last_band.get('EndPercentage')
+            last_band_end_value = round((1 + last_band_end_percent / 100) * base_price, 8)
+            sell_buffer_end_value = round((1 + 25 / 100) * self.current_price, 8)
+            data_buffer = {
+                'priceDifferenceRangeStart': last_band.get('PriceDifferenceRangeStart'),
+                'priceDifferenceRangeEnd': last_band.get('PriceDifferenceRangeEnd'),
+                'noOfOrders': 0,
+                'cashAmount': 0,
+                'orderType': order_type,
+                'priceRangeStart': last_band_end_value,
+                'priceRangeEnd': sell_buffer_end_value
+            }
         for band in bands:
             start_percent = band.get('StartPercentage')
             end_percent = band.get('EndPercentage')
@@ -43,9 +40,10 @@ class MarketMakingBotService:
             no_of_orders = band.get('NoOfOrders')
             band_algorithm = band.get('BandAlgorithm')
             band_name = band.get('BandName')
-            if (buy_order and self.current_price > start_value) or (not buy_order and self.current_price < start_value):
-                cash_amount_adjusted = cash_amount * abs(self.current_price - end_value)/abs(start_value - end_value)
-                no_of_orders_adjusted = no_of_orders * abs(self.current_price - end_value)/abs(start_value - end_value)
+            data = None
+            if (buy_order and self.current_price < start_value and self.current_price > end_value) or (not buy_order and self.current_price > start_value and self.current_price < end_value):
+                cash_amount_adjusted = cash_amount * abs(self.current_price - end_value) / abs(start_value - end_value)
+                no_of_orders_adjusted = round(no_of_orders * abs(self.current_price - end_value) / abs(start_value - end_value))
                 data = {
                     'priceDifferenceRangeStart': band.get('PriceDifferenceRangeStart'),
                     'priceDifferenceRangeEnd': band.get('PriceDifferenceRangeEnd'),
@@ -55,7 +53,10 @@ class MarketMakingBotService:
                     'priceRangeStart': self.current_price,
                     'priceRangeEnd': end_value
                 }
-            else:
+                if not buy_order:
+                    data_buffer['noOfOrders'] += no_of_orders - no_of_orders_adjusted
+                    data_buffer['cashAmount'] += cash_amount - cash_amount_adjusted
+            elif (buy_order and self.current_price > end_value) or (not buy_order and self.current_price < end_value):
                 data = {
                     'priceDifferenceRangeStart': band.get('PriceDifferenceRangeStart'),
                     'priceDifferenceRangeEnd': band.get('PriceDifferenceRangeEnd'),
@@ -65,9 +66,16 @@ class MarketMakingBotService:
                     'priceRangeStart': start_value,
                     'priceRangeEnd': end_value
                 }
-            orders_list = get_bulk_order_list(data, band_algorithm)
-            combined_order_list += orders_list
-            print(f'This is the order list for {no_of_orders} {order_type} orders being placed for band {band_name} : {orders_list}')
+            elif not buy_order:
+                data_buffer['noOfOrders'] += no_of_orders
+                data_buffer['cashAmount'] += cash_amount
+            if data:
+                order_list = get_bulk_order_list(data, band_algorithm)
+                combined_order_list += order_list
+                print(f'This is the original order list for {no_of_orders} {order_type} orders being placed for band {band_name} : {order_list}')
+        if not buy_order:
+            combined_order_list += get_bulk_order_list(data_buffer, band_algorithm)
+            print(f'This is the order list with buffer for {no_of_orders} {order_type} orders : {combined_order_list}')
         # third_party_service = ThirdPartyService()
         # response = third_party_service.create_bulk_orders(combined_order_list)
         return combined_order_list

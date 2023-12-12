@@ -5,13 +5,6 @@ import math
 import time
 import requests
 from settings import http_api_key, http_secret_key
-api_key = http_api_key
-secret_key = http_secret_key
-expires = int(time.time() * 1000)
-expires_key = str(math.floor(expires / 30000))
-expires_key = expires_key.encode("utf-8")
-key = hmac.new(secret_key, expires_key, hashlib.sha256).hexdigest()
-key = key.encode("utf-8")
 
 class ThirdPartyService:
     def __init__(self):
@@ -23,6 +16,13 @@ class ThirdPartyService:
             payload = data
         else:
             payload = json.dumps(data)
+        api_key = http_api_key
+        secret_key = http_secret_key
+        expires = int(time.time() * 1000)
+        expires_key = str(math.floor(expires / 30000))
+        expires_key = expires_key.encode("utf-8")
+        key = hmac.new(secret_key, expires_key, hashlib.sha256).hexdigest()
+        key = key.encode("utf-8")
         payload = payload.encode("utf-8")
         signature = hmac.new(key, payload, hashlib.sha256).hexdigest()
         headers = {
