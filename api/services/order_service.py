@@ -32,9 +32,10 @@ def generate_equal_volume_distribution_orders(no_of_orders, cash_amount, order_t
 
 def generate_high_volume_low_price_orders(no_of_orders, cash_amount, order_type, price_range_start, price_range_end, price_difference_range_start, price_difference_range_end):
     prices, no_of_orders = generate_random_prices(no_of_orders, price_range_start, price_range_end, price_difference_range_start, price_difference_range_end)
+    prices.sort()
     amounts = generate_random_amounts(cash_amount, no_of_orders)
     buy_order = order_type == 'BUY'
-    amounts.sort(reverse=(not buy_order))
+    amounts.sort(reverse=buy_order)
     orders_list = []
     for index, price in enumerate(prices):
         order = {
@@ -48,7 +49,7 @@ def generate_high_volume_low_price_orders(no_of_orders, cash_amount, order_type,
 
 def generate_gradual_restriction_orders(no_of_orders, cash_amount, order_type, price_range_start, price_range_end, price_difference_range_start, price_difference_range_end):
     prices, no_of_orders = generate_random_prices(no_of_orders - 1, price_range_start, price_range_end, price_difference_range_start, price_difference_range_end)
-    amounts = generate_random_amounts(cash_amount * 0.8, no_of_orders - 1)
+    amounts = generate_random_amounts(cash_amount * 0.8, no_of_orders)
     amounts.sort()
     orders_list = []
     for index, price in enumerate(prices):

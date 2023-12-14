@@ -38,9 +38,9 @@ class DatabaseService:
         price_bands = cursor.fetchall()
         for id, type, band_name, start_percentage, end_percentage, custom_end_price, price_difference_start, band_algorith, price_difference_end, account_balance_percent, custom_account_balance, no_of_orders in price_bands:
             if type == 'Buy':
-                self.buy_price_bands.append({'BandName': band_name, 'StartPercentage': start_percentage, 'EndPercentage': end_percentage, 'CustomEndPrice': custom_end_price, 'PriceDifferenceRangeStart': price_difference_start, 'PriceDifferenceRangeEnd': price_difference_end, 'BandAlgorith': band_algorith, 'AccountBalancePercentage': account_balance_percent, 'CustomAccountBalance': custom_account_balance, 'NoOfOrders': no_of_orders})
+                self.buy_price_bands.append({'BandName': band_name, 'StartPercentage': start_percentage, 'EndPercentage': end_percentage, 'CustomEndPrice': custom_end_price, 'PriceDifferenceRangeStart': price_difference_start, 'PriceDifferenceRangeEnd': price_difference_end, 'BandAlgorithm': band_algorith, 'AccountBalancePercentage': account_balance_percent, 'CustomAccountBalance': custom_account_balance, 'NoOfOrders': no_of_orders})
             else:
-                self.sell_price_bands.append({'BandName': band_name, 'StartPercentage': start_percentage, 'EndPercentage': end_percentage, 'PriceDifferenceRangeStart': price_difference_start, 'PriceDifferenceRangeEnd': price_difference_end, 'BandAlgorith': band_algorith, 'AccountBalancePercentage': account_balance_percent, 'CustomAccountBalance': custom_account_balance, 'NoOfOrders': no_of_orders})
+                self.sell_price_bands.append({'BandName': band_name, 'StartPercentage': start_percentage, 'EndPercentage': end_percentage, 'PriceDifferenceRangeStart': price_difference_start, 'PriceDifferenceRangeEnd': price_difference_end, 'BandAlgorithm': band_algorith, 'AccountBalancePercentage': account_balance_percent, 'CustomAccountBalance': custom_account_balance, 'NoOfOrders': no_of_orders})
         # print(self.buy_price_bands)
         # print(self.sell_price_bands)
         

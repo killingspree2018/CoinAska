@@ -50,7 +50,7 @@ class ThirdPartyService:
         }
         try:
             ticker_data = self.make_api_request(url, data)
-            print(ticker_data)
+            return ticker_data
         except Exception as err:
             print(err)
 
