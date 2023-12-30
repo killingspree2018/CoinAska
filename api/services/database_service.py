@@ -1,4 +1,4 @@
-from settings import cursor, cnx
+from database import cursor, cnx
 from datetime import datetime, timedelta
 
 class DatabaseService:

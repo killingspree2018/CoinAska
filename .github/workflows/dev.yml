@@ -1,0 +1,26 @@
+name: Initialize Dev Ubuntu Server
+on: [workflow_dispatch]
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # update system to latest
+          sudo apt update
+          sudo apt-get install python3
+          sudo apt-get install python3-pip
+          sudo apt-get install python3-venv
+          cd /var/local
+          # clone git repository
+          sudo git clone https://github.com/killingspree2018/CoinAska.git
+          cd CoinAska/
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
