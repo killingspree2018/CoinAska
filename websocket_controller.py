@@ -13,7 +13,8 @@ async def connect_to_websocket_server():
                         "op": "SUB",
                         "channel": [
                             "askausdt@ticker",
-                            "askausdt@depth"
+                            # "askausdt@depth",
+                            # "739@trade"
                         ],
                         "id": 1
                     }
@@ -30,16 +31,20 @@ async def connect_to_websocket_server():
                 current_price = float(response_obj.get('close'))
                 bot_service = MarketMakingBotService(current_price)
                 bot_service.start_processing()
+            # if response_obj.get('T') == 'trade':
+            #     print(f"Received trade Data: {response}")
             # if response_obj.get('T') == 'depth':
             #     # print(f"Received depth Data: {response}")
             #     print(f"Length of sell orders depth Data: {len(response_obj.get('a'))}")
             #     print(f"Length of buy orders depth Data: {len(response_obj.get('b'))}")
             x -= 1
+        bot_service.price_movement(100)
         unsub_req = {
                 "op": "UNSUB",
                 "channel": [
                     "askausdt@ticker",
-                    "askausdt@depth"
+                    # "askausdt@depth",
+                    # "739@trade"
                 ],
                 "id": 2
             }

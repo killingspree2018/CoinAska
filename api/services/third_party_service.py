@@ -11,11 +11,7 @@ class ThirdPartyService:
         self.ticker_name = 'askausdt'
         self.ticker_id = 739
 
-    def make_api_request(self, url, data, stringType=None):
-        if stringType:
-            payload = data
-        else:
-            payload = json.dumps(data)
+    def create_headers(self, payload):
         api_key = http_api_key
         secret_key = http_secret_key
         expires = int(time.time() * 1000)
@@ -25,16 +21,23 @@ class ThirdPartyService:
         key = key.encode("utf-8")
         payload = payload.encode("utf-8")
         signature = hmac.new(key, payload, hashlib.sha256).hexdigest()
-        headers = {
-        'X-CS-APIKEY': api_key,
-        'X-CS-SIGN': signature,
-        'X-CS-EXPIRES': str(expires),
-        'exch-language': 'en_US',
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-        # 'Host': 'https://api.coinstore.com',
-        'Connection': 'keep-alive'
+        return {
+            'X-CS-APIKEY': api_key,
+            'X-CS-SIGN': signature,
+            'X-CS-EXPIRES': str(expires),
+            'exch-language': 'en_US',
+            'Content-Type': 'application/json',
+            'Accept': '*/*',
+            # 'Host': 'https://api.coinstore.com',
+            'Connection': 'keep-alive'
         }
+
+    def make_api_request(self, url, data, stringType=None):
+        if stringType:
+            payload = data
+        else:
+            payload = json.dumps(data)
+        headers = self.create_headers(payload)
         print(f'Making api call to {url} with payload {payload} with headers {headers}')
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.status_code == 200:
@@ -62,7 +65,7 @@ class ThirdPartyService:
         }
         try:
             users = self.make_api_request(url, data)
-            print(users)
+            return users
         except Exception as err:
             print(err)
     
@@ -74,7 +77,7 @@ class ThirdPartyService:
         # }
         try:
             current_orders = self.make_api_request(url, 'symbol=askausdt', True)
-            print(current_orders)
+            return current_orders
         except Exception as err:
             print(err)
 
@@ -88,6 +91,18 @@ class ThirdPartyService:
         try:
             current_orders = self.make_api_request(url, data)
             print(current_orders)
+        except Exception as err:
+            print(err)
+            
+    def cancel_orders_in_bulk(self, order_ids):
+        url = f"https://api.coinstore.com/api/trade/order/cancelBatch"
+        data = {
+            "symbol": self.ticker_name,
+            "orderIds": order_ids
+        }
+        try:
+            response = self.make_api_request(url, data)
+            print(response)
         except Exception as err:
             print(err)
 
