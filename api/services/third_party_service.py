@@ -4,6 +4,7 @@ import json
 import math
 import time
 import requests
+from datetime import datetime
 from settings import http_api_key, http_secret_key
 
 class ThirdPartyService:
@@ -110,6 +111,7 @@ class ThirdPartyService:
     def create_bulk_orders(self, orders_list):
         order_data = {
             "symbol": self.ticker_name,
+            "timestamp": round(datetime.timestamp(datetime.now())),
             "orders": orders_list
         }
         url = "https://api.coinstore.com/api/trade/order/placeBatch"
