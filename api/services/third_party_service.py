@@ -40,7 +40,7 @@ class ThirdPartyService:
             payload = json.dumps(data)
         headers = self.create_headers(payload)
         print(f'Making api call to {url} with payload {payload} with headers {headers}')
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request("POST" if not stringType else "GET" , url, headers=headers, data=payload)
         if response.status_code == 200:
             return json.loads(response.text)
         else:
