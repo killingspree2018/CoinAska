@@ -32,6 +32,15 @@ def place_bulk_orders():
         print(response)
         return response
         # return bulk_order_payload
+        
+@app.route('/api/get-orders', methods=['GET'])
+def get_all_orders():
+    if request.method == 'GET':
+        # Your logic to fetch and return data
+        third_party_service = ThirdPartyService()
+        order_list = third_party_service.get_current_orders()
+        print(order_list)
+        return order_list
 
 if __name__ == '__main__':
     app.run(debug=True)
