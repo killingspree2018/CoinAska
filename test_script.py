@@ -1,6 +1,6 @@
 from api.services.third_party_service import ThirdPartyService
 import json, math, random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 # import numpy as np
 
 third_party_service = ThirdPartyService()
