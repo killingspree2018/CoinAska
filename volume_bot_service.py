@@ -5,7 +5,7 @@ from datetime import datetime
 from pytz import timezone
 import math
 from api.services.third_party_service import ThirdPartyService
-from api.services.order_service import generate_volume_bot_orders
+# from api.services.order_service import generate_volume_bot_orders
 
 third_party_service = ThirdPartyService()
 frequency = 0.08
@@ -17,10 +17,9 @@ def get_lowest_selling_price(old_price):
     sell_order_prices = [order[0] for order in sell_orders]
     lowest_selling_price = float(min(sell_order_prices))
     if old_price is None or old_price != lowest_selling_price:
-        print(f'Lowest Selling order Price at {lowest_selling_price}')
+        print(f'Lowest Selling order Price at {lowest_selling_price} from Total {len(sell_orders)} orders')
         return lowest_selling_price, True
     return lowest_selling_price, False
-
 
 def price_movement():
     t = 0
@@ -53,7 +52,7 @@ def price_movement():
             # ypoints.append(price)
             rand_time_jump = random.randint(1, 10)
             t += rand_time_jump
-            time.sleep(5)
+            time.sleep(30)
             # plot_time += rand_time_jump
         # print(f'-------------Part:-{x}---with-cylces-{cycles}------------')
     # plt.plot(xpoints, ypoints)
