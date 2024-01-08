@@ -2,6 +2,7 @@ import random
 # import schedule
 import time
 from datetime import datetime
+from pytz import timezone
 import math
 from api.services.third_party_service import ThirdPartyService
 from api.services.order_service import generate_volume_bot_orders
@@ -46,7 +47,8 @@ def price_movement():
             price = round(price_offset + amplitude * math.sin(frequency * t), 8)
             # orders = generate_volume_bot_orders(price, amount)
             # response = third_party_service.create_bulk_orders(orders)
-            print(f'Time = {datetime.now()} : Price = {price}')
+            now = datetime.now(timezone("Asia/Kolkata")).strftime('%Y-%m-%d %H:%M:%S')
+            print(f'Time = {now} : Price = {price}')
             # xpoints.append(plot_time)
             # ypoints.append(price)
             rand_time_jump = random.randint(1, 10)
