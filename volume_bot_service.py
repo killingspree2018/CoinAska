@@ -4,23 +4,32 @@ import time
 from datetime import datetime
 import math
 from api.services.third_party_service import ThirdPartyService
-from order_service import generate_volume_bot_orders
+from api.services.order_service import generate_volume_bot_orders
 
 third_party_service = ThirdPartyService()
+frequency = 0.08
+amount = 100
+
+def get_lowest_selling_price(old_price):
+    depth_data = third_party_service.get_depth_data().get('data')
+    sell_orders = depth_data.get('a')
+    sell_order_prices = [order[0] for order in sell_orders]
+    lowest_selling_price = float(min(sell_order_prices))
+    if old_price is None or old_price != lowest_selling_price:
+        print(f'Lowest Selling order Price at {lowest_selling_price}')
+        return lowest_selling_price, True
+    return lowest_selling_price, False
+
 
 def price_movement():
-    frequency = 0.08
     t = 0
-    amount = 100
+    old_price = None
     # plot_time = 0
     # xpoints = []
     # ypoints = []
+    lowest_selling_price, price_changed = get_lowest_selling_price(old_price)
+    old_price = lowest_selling_price
     while True:
-        depth_data = third_party_service.get_depth_data().get('data')
-        sell_orders = depth_data.get('a')
-        sell_order_prices = [order[0] for order in sell_orders]
-        lowest_selling_price = min(sell_order_prices)
-        print(f'Lowest Selling order Price at {lowest_selling_price}')
         lower_cap = lowest_selling_price * 0.99
         spectrum = 0.01 * lowest_selling_price
         price_offset = lower_cap + (spectrum * random.randint(1, 9))/10
@@ -29,8 +38,13 @@ def price_movement():
         cycles = random.randint(1, 5)
         total_time = (cycles * 3 / frequency) + t
         while t < total_time:
-            price = price_offset + amplitude * math.sin(frequency * t)
-            orders = generate_volume_bot_orders(price, amount)
+            lowest_selling_price, price_changed = get_lowest_selling_price(old_price)
+            if price_changed:
+                old_price = lowest_selling_price
+                price_changed = False
+                break
+            price = round(price_offset + amplitude * math.sin(frequency * t), 8)
+            # orders = generate_volume_bot_orders(price, amount)
             # response = third_party_service.create_bulk_orders(orders)
             print(f'Time = {datetime.now()} : Price = {price}')
             # xpoints.append(plot_time)
@@ -43,4 +57,5 @@ def price_movement():
     # plt.plot(xpoints, ypoints)
     # plt.show()
 
+price_movement()
 # schedule.every(30).seconds.do(price_movement)
