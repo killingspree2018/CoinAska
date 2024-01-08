@@ -33,21 +33,25 @@ class ThirdPartyService:
             'Connection': 'keep-alive'
         }
 
-    def make_api_request(self, url, data, stringType=None):
+    def make_api_request(self, url, data, method="POST", stringType=None):
         if stringType:
             payload = data
         else:
             payload = json.dumps(data)
         headers = self.create_headers(payload)
-        print(f'Making api call to {url} with payload {payload} with headers {headers}')
-        response = requests.request("POST" if not stringType else "GET" , url, headers=headers, data=payload)
+        print(f'Making {method} api call to {url} with payload {payload} with headers {headers}')
+        response = requests.request(method , url, headers=headers, data=payload)
+        response_obj = None
+        if response:
+            response_obj = json.loads(response.text)
         if response.status_code == 200:
-            return json.loads(response.text)
+            return response_obj
         else:
-            print(response.text)
+            return response_obj
+            
 
     def get_ticker_information(self):
-        url = "https://api.coinstore.com/api/v2/public/config/spot/symbols"
+        url = "https://api.coinstore.com/api/v1/market/tickers"
         data = {
             "symbolCodes":[self.ticker_name],
             "symbolIds":[self.ticker_id]
@@ -66,19 +70,32 @@ class ThirdPartyService:
         }
         try:
             users = self.make_api_request(url, data)
+            if users.get('code') == 1401:
+                file = open('account_data.json')
+                users = json.load(file)
             return users
         except Exception as err:
             print(err)
     
     def get_current_orders(self, version=None):
         url = "https://api.coinstore.com/api/" + (f"{version}/trade/order/active" if version is not None else 'trade/order/active')
-        # data = {
-        #     "symbolCodes":[self.ticker_name],
-        #     "symbolIds":[self.ticker_id]
-        # }
         try:
-            current_orders = self.make_api_request(url, 'symbol=askausdt', True)
+            current_orders = self.make_api_request(url, f'symbol={self.ticker_name}', 'GET', True)
+            if current_orders.get('code') == 1401:
+                file = open('current_orders.json')
+                current_orders = json.load(file)
             return current_orders
+        except Exception as err:
+            print(err)
+            
+    def get_depth_data(self):
+        url = f"https://api.coinstore.com/api/v1/market/depth/{self.ticker_name}"
+        try:
+            depth_data = self.make_api_request(url, '', 'GET')
+            # if current_orders.get('code') == 1401:
+            #     file = open('current_orders.json')
+            #     current_orders = json.load(file)
+            return depth_data
         except Exception as err:
             print(err)
 
@@ -103,7 +120,7 @@ class ThirdPartyService:
         }
         try:
             response = self.make_api_request(url, data)
-            print(response)
+            return response
         except Exception as err:
             print(err)
 
