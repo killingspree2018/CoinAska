@@ -39,7 +39,7 @@ class ThirdPartyService:
         else:
             payload = json.dumps(data)
         headers = self.create_headers(payload)
-        print(f'Making {method} api call to {url} with payload {payload} with headers {headers}')
+        # print(f'Making {method} api call to {url} with payload {payload} with headers {headers}')
         response = requests.request(method , url, headers=headers, data=payload)
         response_obj = None
         if response:
